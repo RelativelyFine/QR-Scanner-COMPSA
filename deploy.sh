@@ -1,0 +1,1 @@
+rsync --exclude-from=.gitignore -r -avh . compsa.caslab.queensu.ca:~/qrcodescanner --delete && ssh compsa.caslab.queensu.ca '~/restart_qr.sh'

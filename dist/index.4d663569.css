@@ -1,0 +1,92 @@
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+  background: #000;
+  margin: 0;
+  padding: 0 10px;
+  font-family: sans-serif;
+}
+
+h1 {
+  color: #fff;
+  margin: 0;
+  padding: 15px;
+}
+
+#container {
+  text-align: center;
+  margin: 0;
+}
+
+#qr-canvas {
+  width: calc(100% - 20px);
+  max-width: 400px;
+  margin: auto;
+}
+
+#btn-scan-qr {
+  cursor: pointer;
+}
+
+#btn-scan-qr img {
+  height: 10em;
+  background: #fff;
+  margin: 15px;
+  padding: 15px;
+}
+
+#qr-result {
+  width: auto;
+  max-width: 300px;
+  background-color: #fff;
+  margin: 20px auto;
+  padding: 20px;
+  font-size: 1.2em;
+}
+
+#error {
+  width: auto;
+  max-width: 300px;
+  background-color: #ff7878;
+  margin: 20px auto;
+  padding: 20px;
+  font-size: 1.2em;
+}
+
+#inputdiv {
+  max-width: 200px;
+  cursor: pointer;
+  background-color: #fff;
+  margin: 20px auto;
+  padding: 10px 20px;
+  font-size: 1.2em;
+}
+
+#backButton {
+  width: 243px;
+  cursor: pointer;
+  background-color: #fff;
+  margin: 30px 0 20px;
+  padding: 20px;
+  font-size: 2em;
+}
+
+input[type="number"] {
+  text-align: center;
+  min-width: 100px;
+  width: 70%;
+  -moz-appearance: textfield;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 12px 20px;
+}
+
+input::-webkit-outer-spin-button, input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/*# sourceMappingURL=index.4d663569.css.map */

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>COMPSA QR Scanner</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <style>
+      html {
+        height: 100%;
+      }
+
+      body {
+        font-family: sans-serif;
+        padding: 0 10px;
+        height: 100%;
+        background: black;
+        margin: 0;
+      }
+
+      h1 {
+        color: white;
+        margin: 0;
+        padding: 15px;
+      }
+
+      #container {
+        text-align: center;
+        margin: 0;
+      }
+
+      #qr-canvas {
+        margin: auto;
+        width: calc(100% - 20px);
+        max-width: 400px;
+      }
+
+      #btn-scan-qr {
+        cursor: pointer;
+      }
+
+      #btn-scan-qr img {
+        height: 10em;
+        padding: 15px;
+        margin: 15px;
+        background: white;
+      }
+
+      #qr-result {
+        font-size: 1.2em;
+        margin: 20px auto;
+        padding: 20px;
+        width: auto;
+        max-width: 300px;
+        background-color: white;
+      }
+
+      #error {
+        font-size: 1.2em;
+        margin: 20px auto;
+        padding: 20px;
+        width: auto;
+        max-width: 300px;
+        background-color: rgb(255, 120, 120);
+      }
+
+
+      #inputdiv {
+        font-size: 1.2em;
+        margin: 20px auto;
+        padding: 10px 20px;
+        max-width: 200px;
+        background-color: white;
+        cursor: pointer;
+      }
+
+      #backButton {
+        font-size: 2em;
+        margin: 30px 0px 20px 0px;
+        padding: 20px;
+        width: 243px;
+        background-color: white;
+        cursor: pointer;
+      }
+
+      input[type=number] {
+        text-align: center;
+        min-width: 100px;
+        width: 70%;
+        padding: 12px 20px;
+        margin: 8px 0;
+        -moz-appearance: textfield;
+        margin: 0;
+        box-sizing: border-box;
+      }
+
+      input::-webkit-outer-spin-button,
+      input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+    </style>
+    <script>
+        fetch("https://compsa.ca/api/admin/manage");
+    </script>
+    <script src="https://rawgit.com/sitepoint-editors/jsqrcode/master/src/qr_packed.js"></script>
+  </head>
+
+  <body>
+    <div id="container">
+      <h1>COMPSA QR Scanner</h1>
+      
+      <a id="btn-scan-qr">
+        <img src="https://dab1nmslvvntp.cloudfront.net/wp-content/uploads/2017/07/1499401426qr_icon.svg" alt="Button to begin QR scan">
+      <a/>
+
+      <canvas hidden="" id="qr-canvas"></canvas>
+      <style>
+
+      </style>
+      
+      <br>
+
+      <button id="backButton" type="button" hidden="">Back</button>
+
+      <div id="error" hidden="">
+        <b>ERROR!</b> <span id="errorData"></span>
+      </div>
+
+      <div id="inputdiv">
+        <b>Award ID:</b>
+        <form>
+          <label for="award-id"></label>
+          <input type="number" id="award-id" name="award-id" placeholder="Award ID"><br>
+        </form>
+      </div>
+
+      <div id="qr-result" hidden="">
+        <b>Data:</b> <span id="outputData"></span>
+      </div>
+    </div>
+    <script>
+      
+      const qrcodeBtn = window.qrcode;
+      
+      const video = document.createElement("video");
+      const canvasElement = document.getElementById("qr-canvas");
+      const canvas = canvasElement.getContext("2d");
+      
+      const qrResult = document.getElementById("qr-result");
+      const outputData = document.getElementById("outputData");
+      const btnScanQR = document.getElementById("btn-scan-qr");
+      const backButton = document.getElementById("backButton");
+      const error = document.getElementById("error");
+      const errorData = document.getElementById("errorData");
+      
+      let scanning = false;
+      
+      qrcodeBtn.callback = async (res) => {
+        await closeQR(res);
+      };
+      
+      backButton.onclick = async (res) => {
+        await closeQR(res);
+      };
+      
+      const closeQR = async (res) => {
+        if (res) {
+          scanning = false;
+      
+          video.srcObject.getTracks().forEach((track) => {
+            track.stop();
+          });
+      
+          if (res.type == "click") {
+            outputData.innerText = "Scan Cancelled!";
+          } else {
+            outputData.innerText = res;
+            await backendInterface(res);
+          }
+          qrResult.hidden = false;
+          backButton.hidden = true;
+          canvasElement.hidden = true;
+          btnScanQR.hidden = false;
+        }
+      };
+      
+      btnScanQR.onclick = () => {
+        navigator.mediaDevices
+          .getUserMedia({ video: { facingMode: "environment" } })
+          .then(function (stream) {
+            backButton.hidden = false;
+            scanning = true;
+            qrResult.hidden = true;
+            btnScanQR.hidden = true;
+            canvasElement.hidden = false;
+            video.setAttribute("playsinline", true); // required to tell iOS safari we don't want fullscreen
+            video.srcObject = stream;
+            video.play();
+            tick();
+            scan();
+          });
+      };
+      
+      function tick() {
+        canvasElement.height = video.videoHeight;
+        canvasElement.width = video.videoWidth;
+        canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
+      
+        scanning && requestAnimationFrame(tick);
+      }
+      
+      function scan() {
+        try {
+          qrcode.decode();
+        } catch (e) {
+          setTimeout(scan, 300);
+        }
+      }
+      
+      async function backendInterface(res) {
+        net_id = await JSON.parse(res).net_id;
+        award_id = await document.getElementById("award-id").value;
+        url = `https://compsa.ca/api/admin/manage?net_id=${net_id}&award_id=${award_id}`;
+        await fetch(url, {
+          headers: {
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Pragma": "no-cache",
+            "Expires": "0"
+          },
+        })
+          .then((res) => {
+            console.log(res);
+            error.hidden = true;
+            errorData.innerText = "";
+          })
+          .catch((err) => {
+            console.log(err);
+            error.hidden = false;
+            errorData.innerText = err;
+          });
+      }
+      </script>
+      
+      
+  </body>
+</html>
+
